@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Html5游戏开发--《躲砖块》</title>
+
+<script src="js/jquery-1.4.4.js" type="text/javascript" ></script>
+<script src="js/game1.js" type="text/javascript" ></script>
+<script type="text/javascript">
+	
+	var carImg = new Image();
+	var blockImg = new Image();
+	var screenWidth;//画布宽度
+    var screenHeight;//画布高度
+	var ctx;
+	var carspeed = 10; // 小车的移动步距
+	var speed = 1;
+	var openflag = true; // 游戏开关
+	
+	// 实例化一个汽车对象
+	var carroom = new CarRoom();
+	// 障碍物对象
+	var blockRoom = new BlockRoom();
+	var blocky = 0;
+		
+	// 创建一个小车对象
+	function createCarObj(){
+		carroom.x = parseInt(screenWidth/2-15);
+		carroom.y = screenHeight-40;
+		carImg.src='images/car.jpg'; // 小车图片
+		carroom.image = carImg;
+	}
+	
+	// 创建障碍物砖块对象
+	function createBlockObj(){
+		// 自上向下走，随机出现(起始位置：x随机、y=0)
+		var xrand = Math.ceil(Math.random()*(310-10)+10);
+		blockRoom.x = xrand;
+		blockRoom.y = 0;
+		blockImg.src="images/block.jpg";
+		blockRoom.image= blockImg;
+	}
+	
+	// 画砖块
+	function printBlock(){
+		blocky += speed;
+		blockRoom.y = blocky;
+		ctx.drawImage(blockRoom);
+		// 向下走出边界，重新开始
+		if(blocky == screenHeight+20) {
+			var xrom = Math.ceil(Math.random()*(310-10)+10);
+			blockRoom.x = xrom;
+			blocky = 0;
+		}
+		// 检查是否相撞，如相撞则游戏停止
+		if(CheckIntersect(carroom,blockRoom,0)){
+			openflag = false;
+			speed = 0;
+			document.getElementById('gamelog').innerHTML='Game Over<br/>';
+		}
+	}
+	
+	
+	// 画图
+	function printScreenLoop(){
+		ctx.fillBgRect(screenWidth,screenHeight); // 清除背景
+		carroom.checkborder(); // 检查边界条件
+		ctx.drawImage(carroom); // 画小车
+		printBlock(); // 调用画砖块方法
+		ctx.context.restore();
+	}
+	
+	function AddEventHandlers(){
+		$(window).keydown(function(event){
+			var key = event.keyCode;
+				switch (key){
+				 case 39:
+					carroom.x += carspeed;break;//right
+				 case 40:
+					carroom.y += carspeed;break;//down
+				 case 38:
+					carroom.y += -carspeed;break;//up
+				 case 37:
+					carroom.x += -carspeed;break;//left
+				 case 32:
+					gameStartOrOver();
+					break; //blank
+				}
+		});
+	}
+	
+	// 游戏停止(如果是运行的情况下)，游戏开始(在游戏停止的情况下)
+	function gameStartOrOver(){
+		if(openflag){
+			speed = 0;
+			document.getElementById('gamelog').innerHTML='Game Over<br/>';
+		} else {
+			speed = 1;
+			document.getElementById('gamelog').innerHTML='Game Start<br/>';
+		}
+		openflag = !openflag;
+	}
+	// 初始化
+	$(window).ready(function(){
+		AddEventHandlers();
+		screenWidth = $("#canvas").attr('width');
+		screenHeight = $("#canvas").attr('height');
+		ctx = new Context(document.getElementById('canvas').getContext('2d'));
+		createCarObj();
+		createBlockObj();
+		setInterval(printScreenLoop, 10);
+	});
+	
+</script>
+</head>
+<body style="text-align:center">
+<div id="container" style="width:320px; height:480px; border:thin solid #999;margin: 0 auto; ">
+	<canvas id='canvas' width="320px" height="480px"></canvas>
+</div>
+<div id="gamelog"></div>
+<div>
+copyright:qiushyfm@gmail.com<br/>http://www.yongzhi.info
+</div>
+</body>
+</html>
