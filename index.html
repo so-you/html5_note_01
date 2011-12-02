@@ -64,7 +64,7 @@
 	// 画图
 	function printScreenLoop(){
 		ctx.fillBgRect(screenWidth,screenHeight); // 清除背景
-		carroom.checkborder(); // 检查边界条件
+		carroom.checkborder(screenWidth,screenHeight); // 检查边界条件
 		ctx.drawImage(carroom); // 画小车
 		printBlock(); // 调用画砖块方法
 		ctx.context.restore();
